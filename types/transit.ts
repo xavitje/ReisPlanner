@@ -1,21 +1,25 @@
-export interface Location {
+export interface Station {
+  name: string;
+  code: string;
   lat: number;
   lng: number;
-  name: string;
 }
 
-export interface TransitStep {
-  type: 'WALK' | 'BUS' | 'TRAIN' | 'METRO' | 'TRAM';
-  instruction: string;
-  duration: number; // in minuten
-  polyline: string; // Voor Google Maps weergave
-}
-
-export interface TravelAdvice {
-  id: string;
+export interface Leg {
+  origin: string;
+  destination: string;
   departureTime: string;
   arrivalTime: string;
-  totalDuration: number;
-  steps: TransitStep[];
-  price?: number;
+  mode: string;
+  direction: string;
+  stops: any[];
+}
+
+export interface Trip {
+  uid: string;
+  departureTime: string;
+  arrivalTime: string;
+  duration: number;
+  transfers: number;
+  legs: Leg[];
 }
