@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Search, MapPin, ArrowRightLeft, Loader2, Navigation, Calendar, Clock } from 'lucide-react';
-import { importLibrary } from '@googlemaps/js-api-loader';
+import { Loader } from '@googlemaps/js-api-loader';
 
 interface SearchBoxProps {
   onSearch: (from: string, to: string, date: string, time: string) => void;
@@ -23,7 +23,13 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
   useEffect(() => {
     const initAutocomplete = async () => {
       try {
-        await importLibrary("places");
+        const loader = new Loader({
+          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+          version: "weekly",
+          libraries: ["places"]
+        });
+
+        await loader.load();
         autocompleteService.current = new google.maps.places.AutocompleteService();
       } catch (err) {
         console.error("Kon Google Places niet laden", err);
@@ -72,10 +78,11 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
     <div className="relative w-full space-y-4">
       {/* Locaties Sectie */}
       <div className="relative space-y-3">
+        {/* Lijn tussen de locaties */}
         <div className="absolute left-6 top-[3rem] bottom-[3rem] w-[2px] bg-[#264F6B] rounded-full z-0" />
 
-        {/* From Input */}
-        <div className="flex items-center gap-3 relative z-10">
+        {/* Vertrek Input */}
+        <div className="flex items-center gap-4 relative z-10">
           <div className="w-12 h-12 rounded-full bg-[#264F6B] flex items-center justify-center shadow-md flex-shrink-0">
             <Navigation className="w-5 h-5 text-[#B0E2F5]" />
           </div>
@@ -85,22 +92,22 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
             onFocus={() => { setActiveField('from'); setPredictions([]); }}
             type="text"
             placeholder="Vertrekstation..."
-            className="flex-1 bg-[#264F6B]/30 border border-[#264F6B] text-white placeholder-[#B0E2F5]/50 p-4 px-5 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] focus:border-[#80F4FC] outline-none transition-all font-medium"
+            className="flex-1 bg-[#264F6B]/30 border border-[#264F6B] text-[#B0E2F5] placeholder-[#B0E2F5]/50 p-4 px-5 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] focus:border-[#80F4FC] outline-none transition-all font-medium"
           />
         </div>
 
         {/* Swap Button */}
-        <div className="flex justify-center relative z-20">
+        <div className="flex justify-start pl-[0.85rem] relative z-20">
           <button
             onClick={handleSwap}
-            className="w-10 h-10 bg-[#121F3F] border border-[#264F6B] hover:border-[#80F4FC] rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95"
+            className="w-10 h-10 bg-[#121F3F] border-2 border-[#264F6B] hover:border-[#80F4FC] rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95"
           >
             <ArrowRightLeft className="w-4 h-4 text-[#80F4FC]" />
           </button>
         </div>
 
-        {/* To Input */}
-        <div className="flex items-center gap-3 relative z-10">
+        {/* Aankomst Input */}
+        <div className="flex items-center gap-4 relative z-10">
           <div className="w-12 h-12 rounded-full bg-[#264F6B] flex items-center justify-center shadow-md flex-shrink-0">
             <MapPin className="w-5 h-5 text-[#B0E2F5]" />
           </div>
@@ -110,35 +117,37 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
             onFocus={() => { setActiveField('to'); setPredictions([]); }}
             type="text"
             placeholder="Bestemmingsstation..."
-            className="flex-1 bg-[#264F6B]/30 border border-[#264F6B] text-white placeholder-[#B0E2F5]/50 p-4 px-5 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] focus:border-[#80F4FC] outline-none transition-all font-medium"
+            className="flex-1 bg-[#264F6B]/30 border border-[#264F6B] text-[#B0E2F5] placeholder-[#B0E2F5]/50 p-4 px-5 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] focus:border-[#80F4FC] outline-none transition-all font-medium"
           />
         </div>
       </div>
 
       {/* Tijd & Datum Sectie */}
-      <div className="flex gap-3 pt-2">
-        <div className="flex-1 relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center">
+      <div className="flex flex-col sm:flex-row gap-4 pt-2">
+        {/* Datum */}
+        <div className="flex items-center gap-4 flex-1">
+          <div className="w-12 h-12 rounded-full bg-[#264F6B] flex items-center justify-center shadow-md flex-shrink-0">
             <Calendar className="w-5 h-5 text-[#B0E2F5]" />
           </div>
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full bg-[#264F6B]/30 border border-[#264F6B] text-white p-4 pl-12 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] outline-none transition-all font-medium"
+            className="flex-1 w-full bg-[#264F6B]/30 border border-[#264F6B] text-[#B0E2F5] p-4 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] outline-none transition-all font-medium"
             style={{ colorScheme: "dark" }}
           />
         </div>
 
-        <div className="flex-1 relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center">
+        {/* Tijd */}
+        <div className="flex items-center gap-4 flex-1">
+          <div className="w-12 h-12 rounded-full bg-[#264F6B] flex items-center justify-center shadow-md flex-shrink-0">
             <Clock className="w-5 h-5 text-[#B0E2F5]" />
           </div>
           <input
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            className="w-full bg-[#264F6B]/30 border border-[#264F6B] text-white p-4 pl-12 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] outline-none transition-all font-medium"
+            className="flex-1 w-full bg-[#264F6B]/30 border border-[#264F6B] text-[#B0E2F5] p-4 rounded-2xl focus:ring-2 focus:ring-[#80F4FC] outline-none transition-all font-medium"
             style={{ colorScheme: "dark" }}
           />
         </div>
@@ -170,7 +179,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
       <button
         onClick={handleSubmit}
         disabled={isLoading || !from || !to}
-        className="mt-4 w-full bg-[#80F4FC] hover:bg-[#B0E2F5] disabled:bg-[#264F6B] disabled:text-[#B0E2F5]/50 text-[#121F3F] font-extrabold py-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg"
+        className="mt-6 w-full bg-[#80F4FC] hover:bg-[#B0E2F5] disabled:bg-[#264F6B] disabled:text-[#B0E2F5]/50 text-[#121F3F] font-extrabold py-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg"
       >
         {isLoading ? (
           <>

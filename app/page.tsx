@@ -28,11 +28,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#121F3F] flex justify-center font-sans pb-20">
-      <div className="w-full max-w-xl p-4 sm:p-6 flex flex-col relative">
+    // FIX: px-5 sm:px-8 zorgt voor geforceerde witruimte aan de zijkanten. py-8 voor de boven/onderkant.
+    <main className="min-h-screen bg-[#121F3F] flex justify-center font-sans pb-20 px-5 sm:px-8 py-8">
+      <div className="w-full max-w-xl flex flex-col relative">
 
         {/* Header & Profiel */}
-        <div className="flex items-center justify-between mb-8 mt-4">
+        <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-extrabold text-[#B0E2F5] tracking-tight">
             Reisplanner
           </h1>
@@ -44,8 +45,8 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Zoekbox - Blijft altijd staan, ook als RouteDetails open is */}
-        <div className="mb-8">
+        {/* Zoekbox */}
+        <div className="mb-10">
           <SearchBox onSearch={handleSearch} isLoading={loading} />
         </div>
 
@@ -63,7 +64,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="space-y-4"
+              className="space-y-5"
             >
               {trips.length > 0 && trips.map((trip, index) => {
                 const mainLeg = trip.legs.find(l => l.mode !== 'WALK') || trip.legs[0];
