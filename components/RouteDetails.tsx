@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { Trip } from '@/types/transit';
-import { ChevronLeft, Clock, Train, Bus, ArrowRight, Navigation, Info } from 'lucide-react';
+import { ChevronLeft, Clock, Train, Bus, ArrowRight, Navigation, Info, ChevronRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface RouteDetailsProps {
   trip: Trip;
@@ -10,6 +11,8 @@ interface RouteDetailsProps {
 }
 
 export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
+  const router = useRouter();
+
   const getIcon = (mode?: string) => {
     const safeMode = (mode || 'UNKNOWN').toUpperCase();
     switch (safeMode) {
@@ -92,7 +95,6 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
                       <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">
                         Vertrek
                       </div>
-                      {/* Flex-col zorgt ervoor dat Spoor altijd netjes op een nieuwe regel staat */}
                       <div className="flex flex-col items-start gap-2">
                         <div className="font-bold text-gray-900 text-lg">
                           {leg.origin}
@@ -125,7 +127,6 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
                       >
                         <ArrowRight className="w-3.5 h-3.5 text-white" />
                       </div>
-                      {/* Richting staat nu op een eigen regel of heeft duidelijke tussenruimte */}
                       <div className="text-sm flex flex-col gap-1">
                         <span className="font-bold text-gray-900 text-base">
                           {leg.category || (leg.mode === 'TRAIN' ? 'Trein' : leg.mode)}
@@ -140,24 +141,35 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
                     </div>
                   )}
 
-                  {/* Trein details (Model, Lengte) - Nu overzichtelijk gegroepeerd met labels */}
+                  {/* Trein details - Nu interactief & Klikbaar (Stap 2) */}
                   {leg.trainInfo && (leg.trainInfo.model || leg.trainInfo.length) && (
-                    <div className="flex flex-col gap-2 pt-2 pl-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Info className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Trein informatie</span>
+                    <div
+                      onClick={() => {
+                        const dateString = leg.departureTime ? leg.departureTime.split('T')[0] : trip.departureTime.split('T')[0];
+                        router.push(`/trein/${leg.trainInfo?.length}?date=${dateString}`);
+                      }}
+                      className="group flex items-center justify-between mt-3 p-3 bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-all cursor-pointer shadow-sm hover:shadow"
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Info className="w-4 h-4 text-blue-500" />
+                          <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Bekijk volledige rit</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 pl-6">
+                          {leg.trainInfo.model && (
+                            <span className="text-xs font-semibold text-gray-700 bg-gray-100 group-hover:bg-white px-2.5 py-1.5 rounded-md border border-gray-200 transition-colors">
+                              {leg.trainInfo.model}
+                            </span>
+                          )}
+                          {leg.trainInfo.length && (
+                            <span className="text-xs font-semibold text-gray-700 bg-gray-100 group-hover:bg-white px-2.5 py-1.5 rounded-md border border-gray-200 transition-colors">
+                              Treinnr: {leg.trainInfo.length}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2 pl-6">
-                        {leg.trainInfo.model && (
-                          <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1.5 rounded-md border border-gray-200">
-                            {leg.trainInfo.model}
-                          </span>
-                        )}
-                        {leg.trainInfo.length && (
-                          <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1.5 rounded-md border border-gray-200">
-                            Treinnr: {leg.trainInfo.length}
-                          </span>
-                        )}
+                      <div className="pr-2">
+                        <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-blue-600 transition-colors" />
                       </div>
                     </div>
                   )}
@@ -170,7 +182,6 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
                       <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">
                         Aankomst
                       </div>
-                      {/* Zelfde logica als bij vertrek voor het aankomstspoor */}
                       <div className="flex flex-col items-start gap-2">
                         <div className="font-bold text-gray-900 text-lg">
                           {leg.destination}
