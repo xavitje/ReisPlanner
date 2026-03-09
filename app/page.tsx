@@ -15,11 +15,11 @@ export default function Home() {
 
   const handleSearch = async (from: string, to: string) => {
     setLoading(true);
-    setSelectedTrip(null); // Reset selectie bij nieuwe zoekopdracht
+    setSelectedTrip(null);
     try {
       const res = await fetch(`/api/plan?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
       const data = await res.json();
-      setTrips(data);
+      setTrips(data || []);
     } catch (err) {
       console.error("Fout bij laden reizen", err);
     } finally {
@@ -27,84 +27,90 @@ export default function Home() {
     }
   };
 
-  // Haal de eerste polyline uit de geselecteerde reis zodat we die op de kaart kunnen tekenen
-  // Opmerking: Voor een complete route kun je later alle polylines van alle legs combineren
   const activePolyline = selectedTrip?.legs.find(leg => leg.polyline)?.polyline;
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-slate-950">
-      {/* De Kaart - Fullscreen */}
+    <main className="relative h-screen w-screen overflow-hidden bg-slate-950 flex">
+
+      {/* De Kaart - Neemt de hele achtergrond in */}
       <div className="absolute inset-0 z-0">
         <Map encodedPolyline={activePolyline} />
       </div>
 
-      {/* Interface Overlays */}
-      <div className="relative z-10 p-6 flex flex-col h-full pointer-events-none">
+      {/* Links Zijpaneel (Sidebar) - Modern & Strak */}
+      <div className="relative z-10 w-full md:w-[420px] h-full flex flex-col bg-slate-900/85 backdrop-blur-2xl border-r border-slate-700/50 shadow-[20px_0_50px_rgba(0,0,0,0.5)]">
 
-        {/* Zoekbalk (Verdwijnt of schuift als er een trip is geselecteerd) */}
-        <AnimatePresence>
-          {!selectedTrip && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="pointer-events-auto flex justify-center"
-            >
-              <SearchBox onSearch={handleSearch} isLoading={loading} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Zoekbalk (Blijft altijd bovenaan staan) */}
+        <div className="p-6 shrink-0 border-b border-slate-700/50 bg-slate-900/50">
+          <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600 mb-6">
+            Reisplanner.
+          </h1>
+          <SearchBox onSearch={handleSearch} isLoading={loading} />
+        </div>
 
-        {/* Onderkant: Resultaten OF Route Details */}
-        <div className="mt-auto pointer-events-auto flex justify-center pb-4">
+        {/* Dynamische Inhoud (Resultaten OF Details) */}
+        <div className="flex-1 overflow-y-auto p-6 scroll-smooth custom-scrollbar">
           <AnimatePresence mode="wait">
+
+            {/* SCENARIO 1: Een specifieke reis is geselecteerd */}
             {selectedTrip ? (
-              /* Toon het Detail Paneel */
               <RouteDetails
                 key="details"
                 trip={selectedTrip}
                 onClose={() => setSelectedTrip(null)}
               />
             ) : (
-              /* Toon de Resultaten Lijst (Carrousel) */
-              trips.length > 0 && (
-                <motion.div
-                  key="list"
-                  className="overflow-x-auto flex gap-4 w-full max-w-5xl px-4 py-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  {trips.map((trip, index) => (
+
+              /* SCENARIO 2: De verticale, scrollbare resultatenlijst */
+              <motion.div
+                key="list"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col gap-4"
+              >
+                {trips.length > 0 ? (
+                  trips.map((trip, index) => (
                     <motion.div
                       key={trip.uid || index}
-                      initial={{ y: 50, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: index * 0.1 }}
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: index * 0.05 }}
                       onClick={() => setSelectedTrip(trip)}
-                      className="glass-panel min-w-[280px] p-4 rounded-2xl cursor-pointer hover:border-sky-400 transition-colors shrink-0"
+                      className="bg-slate-800/60 border border-slate-700 hover:border-sky-500/50 p-5 rounded-2xl cursor-pointer hover:bg-slate-800 transition-all shadow-lg group"
                     >
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-xl font-bold text-white">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-2xl font-black text-white group-hover:text-sky-400 transition-colors">
                           {new Date(trip.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                         </span>
-                        <ArrowRight className="w-4 h-4 text-slate-400" />
-                        <span className="text-xl font-bold text-white">
+                        <div className="flex-1 border-t-2 border-dashed border-slate-600 mx-4 relative">
+                          <ArrowRight className="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 text-slate-500 bg-slate-800/60 px-1" />
+                        </div>
+                        <span className="text-2xl font-black text-white">
                           {new Date(trip.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-slate-400 text-sm">
-                        <Clock className="w-4 h-4" />
-                        <span>{trip.duration} min.</span>
-                        <div className="ml-auto flex items-center gap-1 bg-sky-500/20 text-sky-400 px-2 py-1 rounded-lg">
-                          <Train className="w-3 h-3" />
-                          <span className="text-xs font-bold">{trip.transfers}x overstap</span>
+
+                      <div className="flex items-center justify-between text-slate-400 text-sm bg-slate-900/50 p-3 rounded-xl border border-slate-700/30">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-sky-500" />
+                          <span className="font-medium">{trip.duration} min. reistijd</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-md">
+                          <Train className="w-4 h-4" />
+                          <span className="text-xs font-bold uppercase tracking-wider">{trip.transfers} overstappen</span>
                         </div>
                       </div>
                     </motion.div>
-                  ))}
-                </motion.div>
-              )
+                  ))
+                ) : (
+                  !loading && (
+                    <div className="text-center text-slate-500 mt-10">
+                      <p>Vul een vertrekpunt en bestemming in om reizen te zoeken.</p>
+                    </div>
+                  )
+                )}
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

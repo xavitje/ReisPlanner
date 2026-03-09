@@ -69,7 +69,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
   };
 
   return (
-    <div className="glass-panel p-5 rounded-3xl w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-slate-700/50 relative">
+    <div className="w-full relative flex flex-col">
 
       {/* De visuele stippellijn tussen de inputs */}
       <div className="absolute left-[2.15rem] top-12 bottom-24 w-0.5 border-l-2 border-dotted border-slate-600 z-0" />
