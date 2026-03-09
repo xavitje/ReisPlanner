@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { Search, MapPin } from 'lucide-react';
+import { Search, MapPin, ArrowDownUp, AlertCircle, Loader2 } from 'lucide-react';
 import { importLibrary } from '@googlemaps/js-api-loader';
 
 interface SearchBoxProps {
@@ -12,63 +12,137 @@ interface SearchBoxProps {
 export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const fromRef = useRef<HTMLInputElement>(null);
-  const toRef = useRef<HTMLInputElement>(null);
+
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [activeField, setActiveField] = useState<'from' | 'to' | null>(null);
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
 
   useEffect(() => {
     const initAutocomplete = async () => {
       try {
-        // We wachten actief tot de 'places' library is ingeladen door Google
         await importLibrary("places");
-
-        const options = { componentRestrictions: { country: "nl" }, fields: ["name"] };
-
-        if (fromRef.current) {
-          new google.maps.places.Autocomplete(fromRef.current, options).addListener("place_changed", () => {
-            setFrom(fromRef.current!.value);
-          });
-        }
-
-        if (toRef.current) {
-          new google.maps.places.Autocomplete(toRef.current, options).addListener("place_changed", () => {
-            setTo(toRef.current!.value);
-          });
-        }
+        autocompleteService.current = new google.maps.places.AutocompleteService();
       } catch (err) {
-        console.error("Kon autocomplete niet laden", err);
+        console.error("Kon Google Places niet laden", err);
       }
     };
-
     initAutocomplete();
   }, []);
 
+  // Zoek locaties as the user types
+  const handleInput = (val: string, field: 'from' | 'to') => {
+    if (field === 'from') setFrom(val);
+    if (field === 'to') setTo(val);
+    setActiveField(field);
+
+    if (val.length > 2 && autocompleteService.current) {
+      autocompleteService.current.getPlacePredictions({
+        input: val,
+        componentRestrictions: { country: 'nl' },
+        types: ['transit_station', 'establishment'] // Focus op OV
+      }, (results) => {
+        setPredictions(results || []);
+      });
+    } else {
+      setPredictions([]);
+    }
+  };
+
+  // Zodra iemand een suggestie aanklikt
+  const handleSelectPrediction = (prediction: google.maps.places.AutocompletePrediction) => {
+    // We pakken ALLEEN de korte naam (bijv "Rotterdam Centraal") zodat de NS API niet crasht!
+    const shortName = prediction.structured_formatting.main_text;
+
+    if (activeField === 'from') setFrom(shortName);
+    if (activeField === 'to') setTo(shortName);
+
+    setPredictions([]);
+    setActiveField(null);
+  };
+
+  const handleSwap = () => {
+    setFrom(to);
+    setTo(from);
+  };
+
+  const handleSubmit = () => {
+    if (!from || !to) return; // Voorkomt de 400 error!
+    onSearch(from, to);
+  };
+
   return (
-    <div className="glass-panel p-6 rounded-3xl w-full max-w-md flex flex-col gap-4 shadow-2xl">
-      <div className="relative">
-        <MapPin className="absolute left-3 top-3 text-sky-400 w-5 h-5" />
-        <input
-          ref={fromRef}
-          type="text"
-          placeholder="Vertrekpunt (Station)"
-          className="w-full bg-slate-800/50 border border-slate-700 p-2 pl-10 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all text-white"
-        />
+    <div className="glass-panel p-5 rounded-3xl w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-slate-700/50 relative">
+
+      {/* De visuele stippellijn tussen de inputs */}
+      <div className="absolute left-[2.15rem] top-12 bottom-24 w-0.5 border-l-2 border-dotted border-slate-600 z-0" />
+
+      <div className="flex flex-col gap-3 relative z-10">
+
+        {/* Vertrekpunt */}
+        <div className="relative group">
+          <div className="absolute left-3 top-3.5 w-5 h-5 bg-slate-900 rounded-full flex items-center justify-center border-2 border-sky-400 z-10">
+            <div className="w-1.5 h-1.5 bg-sky-400 rounded-full" />
+          </div>
+          <input
+            value={from}
+            onChange={(e) => handleInput(e.target.value, 'from')}
+            onFocus={() => { setActiveField('from'); setPredictions([]); }}
+            type="text"
+            placeholder="Kies vertrekstation..."
+            className="w-full bg-slate-800/80 border border-slate-700/50 text-white placeholder-slate-400 p-3 pl-12 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none transition-all shadow-inner"
+          />
+        </div>
+
+        {/* Swap Button */}
+        <div className="absolute right-4 top-[3.25rem] z-20">
+          <button
+            onClick={handleSwap}
+            className="p-2 bg-slate-700 hover:bg-slate-600 rounded-full border border-slate-600 shadow-lg transition-transform active:scale-90"
+          >
+            <ArrowDownUp className="w-4 h-4 text-sky-400" />
+          </button>
+        </div>
+
+        {/* Bestemming */}
+        <div className="relative group">
+          <MapPin className="absolute left-3 top-3.5 text-red-500 w-5 h-5 z-10 bg-slate-900 rounded-full" />
+          <input
+            value={to}
+            onChange={(e) => handleInput(e.target.value, 'to')}
+            onFocus={() => { setActiveField('to'); setPredictions([]); }}
+            type="text"
+            placeholder="Kies bestemming..."
+            className="w-full bg-slate-800/80 border border-slate-700/50 text-white placeholder-slate-400 p-3 pl-12 rounded-2xl focus:ring-2 focus:ring-sky-500 outline-none transition-all shadow-inner"
+          />
+        </div>
       </div>
-      <div className="relative">
-        <Search className="absolute left-3 top-3 text-sky-400 w-5 h-5" />
-        <input
-          ref={toRef}
-          type="text"
-          placeholder="Bestemming (Station)"
-          className="w-full bg-slate-800/50 border border-slate-700 p-2 pl-10 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all text-white"
-        />
-      </div>
+
+      {/* Autocomplete Dropdown */}
+      {predictions.length > 0 && (
+        <div className="absolute left-0 right-0 mt-2 mx-5 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden">
+          {predictions.map((p) => (
+            <div
+              key={p.place_id}
+              onClick={() => handleSelectPrediction(p)}
+              className="p-3 hover:bg-slate-700 cursor-pointer flex flex-col border-b border-slate-700/50 last:border-0 transition-colors"
+            >
+              <span className="text-white font-medium">{p.structured_formatting.main_text}</span>
+              <span className="text-slate-400 text-sm">{p.structured_formatting.secondary_text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Zoekknop */}
       <button
-        onClick={() => onSearch(fromRef.current!.value, toRef.current!.value)}
-        disabled={isLoading}
-        className="bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 rounded-xl transition-all active:scale-95 disabled:opacity-50"
+        onClick={handleSubmit}
+        disabled={isLoading || !from || !to}
+        className="mt-5 w-full bg-sky-500 hover:bg-sky-400 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold py-3.5 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20"
       >
-        {isLoading ? "Plannen..." : "Plan mijn reis"}
+        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+        {isLoading ? "Route berekenen..." : "Vind de snelste route"}
       </button>
+
     </div>
   );
 }

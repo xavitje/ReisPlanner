@@ -7,20 +7,20 @@ export async function GET(request: Request) {
   const from = searchParams.get('from');
   const to = searchParams.get('to');
 
-  // Haal de API key veilig uit de environment variables
   const NS_API_KEY = process.env.NS_API_KEY;
 
   if (!NS_API_KEY) {
     return NextResponse.json({ error: 'Server configuratie fout: Missende API Key' }, { status: 500 });
   }
 
+  // Voorkomt de 400 error aan de achterkant
   if (!from || !to) {
-    return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+    return NextResponse.json({ error: 'Vul zowel een vertrekpunt als bestemming in.' }, { status: 400 });
   }
 
   try {
     const response = await fetch(
-      `${NS_API_URL}?fromStation=${from}&toStation=${to}&minimalChangeTime=5`,
+      `${NS_API_URL}?fromStation=${encodeURIComponent(from)}&toStation=${encodeURIComponent(to)}&minimalChangeTime=5`,
       {
         headers: {
           'Ocp-Apim-Subscription-Key': NS_API_KEY,
@@ -29,7 +29,12 @@ export async function GET(request: Request) {
     );
 
     if (!response.ok) {
-      throw new Error(`NS API reageerde met status: ${response.status}`);
+      // NS API geeft vaak een 400 terug als het station niet exact klopt
+      const errorData = await response.json().catch(() => null);
+      console.error("NS API weigert request:", errorData);
+      return NextResponse.json({
+        error: `NS kon geen route vinden. Controleer of de stationsnamen kloppen. (Status: ${response.status})`
+      }, { status: 400 });
     }
 
     const data = await response.json();
@@ -43,10 +48,10 @@ export async function GET(request: Request) {
       transfers: trip.transfers,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       legs: trip.legs.map((leg: any) => ({
-        mode: leg.type, // TRAIN, BUS, WALK etc.
+        mode: leg.type,
         origin: leg.origin?.name || '',
         destination: leg.destination?.name || '',
-        departureTime: leg.origin?.plannedDateTime || undefined, // undefined als het leeg is
+        departureTime: leg.origin?.plannedDateTime || undefined,
         arrivalTime: leg.destination?.plannedDateTime || undefined,
         direction: leg.direction || '',
         polyline: leg.polyline || undefined
@@ -56,6 +61,6 @@ export async function GET(request: Request) {
     return NextResponse.json(trips);
   } catch (error) {
     console.error("NS API Error:", error);
-    return NextResponse.json({ error: 'Failed to fetch from NS' }, { status: 500 });
+    return NextResponse.json({ error: 'Fout bij het ophalen van de data.' }, { status: 500 });
   }
 }
