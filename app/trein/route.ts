@@ -77,7 +77,7 @@ export async function GET(request: Request) {
         track: stop.actualTrack || stop.plannedTrack,
         status: stop.status,
       };
-    }).filter((stop: any) => stop.status !== 'PASSING'); // We filteren stations waar de trein alleen doorheen rijdt zonder te stoppen
+    }).filter((stop: any) => stop.status !== 'PASSING');
 
     const journeyDetails = {
       trainNumber: id,
