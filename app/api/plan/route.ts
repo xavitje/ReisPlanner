@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const NS_API_URL = 'https://gateway.api.ns.nl/reisinformatie-api/v3/trips';
+const NS_API_URL = 'https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips';
 
 const cleanStationName = (name: string) => {
   let cleaned = name.replace(/^Station\s+/i, '');
@@ -22,7 +22,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Vul zowel een vertrekpunt als bestemming in.' }, { status: 400 });
   }
 
-  // Hier maken we de namen "NS-proof"
   const from = cleanStationName(rawFrom);
   const to = cleanStationName(rawTo);
 
@@ -30,25 +29,27 @@ export async function GET(request: Request) {
     const response = await fetch(
       `${NS_API_URL}?fromStation=${encodeURIComponent(from)}&toStation=${encodeURIComponent(to)}&minimalChangeTime=5`,
       {
+        cache: 'no-store',
         headers: {
           'Ocp-Apim-Subscription-Key': NS_API_KEY,
+          'User-Agent': 'OVReisPlanner/1.0 (Next.js op Vercel)',
+          'Accept': 'application/json'
         },
       }
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      console.error("NS API weigert request:", errorData);
+      console.error("NS API weigert request:", errorData, "Status:", response.status);
       return NextResponse.json({
-        error: `NS kon geen route vinden voor '${from}' naar '${to}'. Controleer of deze stations bestaan.`
+        error: `NS kon geen route vinden voor '${from}' naar '${to}'. (Status: ${response.status})`
       }, { status: 400 });
     }
 
     const data = await response.json();
 
-    // Voorkom de 500 error: Wat als NS wel een 200 OK geeft, maar de trips array is leeg of bestaat niet?
     if (!data || !data.trips || data.trips.length === 0) {
-      return NextResponse.json({ error: `Geen directe of mogelijke routes gevonden tussen ${from} en ${to}.` }, { status: 404 });
+      return NextResponse.json({ error: `Geen routes gevonden tussen ${from} en ${to}.` }, { status: 404 });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,8 +72,11 @@ export async function GET(request: Request) {
     }));
 
     return NextResponse.json(trips);
-  } catch (error: any) {
-    console.error("Interne Server Error:", error);
-    return NextResponse.json({ error: `Fout bij berekenen: ${error.message}` }, { status: 500 });
+
+  } catch (error: unknown) {
+    // 4. Type-safe error afhandeling (voorkomt Vercel build errors)
+    console.error("Interne Server Error (Fetch):", error);
+    const msg = error instanceof Error ? error.message : "Onbekende fout bij verbinden met NS API";
+    return NextResponse.json({ error: `Fout bij berekenen: ${msg}` }, { status: 500 });
   }
 }
