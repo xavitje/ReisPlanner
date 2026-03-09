@@ -37,27 +37,27 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
       exit={{ x: -20, opacity: 0 }}
       className="space-y-6"
     >
-      {/* Header */}
-      <div className="bg-gradient-to-br from-[var(--cherry-dark-1000)] to-[var(--cherry-mid-700)] p-6 rounded-3xl shadow-xl">
+      {/* Header - Aangepast naar lichte stijl voor betere leesbaarheid */}
+      <div className="bg-white border-2 border-[var(--iceland-mid-300)] p-6 rounded-3xl shadow-xl">
         <button
           onClick={onClose}
-          className="mb-4 w-10 h-10 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center transition-all"
+          className="mb-4 w-10 h-10 bg-[var(--iceland-light-100)] hover:bg-[var(--iceland-mid-200)] text-[var(--cherry-dark-1000)] rounded-full flex items-center justify-center transition-all"
         >
-          <ChevronLeft className="w-5 h-5 text-white" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
 
-        <h2 className="text-2xl font-bold text-white mb-2">
+        <h2 className="text-2xl font-bold text-[var(--cherry-dark-1000)] mb-2">
           Jouw Reis
         </h2>
 
-        <div className="flex items-center gap-3 text-white/90">
+        <div className="flex items-center gap-3 text-[var(--iceland-dark-1000)] opacity-80">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4 text-[var(--azure-mid-700)]" />
             <span className="font-semibold">{trip.duration} minuten</span>
           </div>
           <span className="opacity-40">•</span>
           <div className="flex items-center gap-2">
-            <Train className="w-4 h-4" />
+            <Train className="w-4 h-4 text-[var(--cherry-mid-700)]" />
             <span className="font-semibold">
               {trip.transfers === 0 ? 'Directe reis' : `${trip.transfers} overstap${trip.transfers > 1 ? 'pen' : ''}`}
             </span>
