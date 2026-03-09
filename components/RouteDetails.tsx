@@ -10,7 +10,6 @@ interface RouteDetailsProps {
 }
 
 export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
-  // Simpele functie om het juiste icoon bij het vervoerstype te zoeken
   const getIcon = (mode: string) => {
     switch (mode.toUpperCase()) {
       case 'TRAIN': return <Train className="w-5 h-5 text-sky-400" />;
@@ -28,7 +27,6 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
       transition={{ type: "spring", damping: 25, stiffness: 200 }}
       className="glass-panel w-full max-w-md p-6 rounded-t-3xl shadow-2xl flex flex-col gap-6 max-h-[80vh] overflow-y-auto"
     >
-      {/* Header met sluitknop */}
       <div className="flex justify-between items-center border-b border-slate-700/50 pb-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -47,9 +45,7 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
         </button>
       </div>
 
-      {/* De losse stappen (Legs) van de reis */}
       <div className="flex flex-col gap-4 relative">
-        {/* Lijn aan de linkerkant om de route visueel te verbinden */}
         <div className="absolute left-[1.15rem] top-4 bottom-4 w-0.5 bg-slate-700 z-0" />
 
         {trip.legs.map((leg, index) => (
@@ -64,7 +60,8 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
               <div className="flex justify-between items-start mb-2">
                 <span className="font-bold text-sky-100">{leg.origin}</span>
                 <span className="font-mono text-sky-400">
-                  {new Date(leg.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  {/* Veilig checken of de tijd bestaat */}
+                  {leg.departureTime ? new Date(leg.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
                 </span>
               </div>
 
@@ -76,7 +73,8 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
               <div className="flex justify-between items-end mt-3 pt-3 border-t border-slate-700/50">
                 <span className="font-bold text-slate-300">{leg.destination}</span>
                 <span className="font-mono text-slate-400">
-                  {new Date(leg.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  {/* Veilig checken of de tijd bestaat */}
+                  {leg.arrivalTime ? new Date(leg.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
                 </span>
               </div>
             </div>

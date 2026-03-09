@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useMemo } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
+// Dit is de nieuwe Versie 2.0 import!
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 
 interface MapProps {
   center?: { lat: number; lng: number };
@@ -34,15 +35,22 @@ export default function Map({ center = { lat: 52.3676, lng: 4.9041 }, zoom = 12,
 
   useEffect(() => {
     const initMap = async () => {
-      const loader = new Loader({
-        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-        version: "weekly",
-      });
+      try {
+        // 1. We stellen eerst de opties in
+        setOptions({
+          key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+          v: "weekly",
+          libraries: ["places"]
+        });
 
-      const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
+        // 2. Dan importeren we de maps library veilig via V2.0 syntax
+        const { Map } = await importLibrary("maps") as google.maps.MapsLibrary;
 
-      if (mapRef.current && !googleMap.current) {
-        googleMap.current = new Map(mapRef.current, mapOptions);
+        if (mapRef.current && !googleMap.current) {
+          googleMap.current = new Map(mapRef.current, mapOptions);
+        }
+      } catch (error) {
+        console.error("Fout bij laden van Google Maps", error);
       }
     };
 

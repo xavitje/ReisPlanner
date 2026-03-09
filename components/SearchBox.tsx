@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Search, MapPin } from 'lucide-react';
+import { importLibrary } from '@googlemaps/js-api-loader';
 
 interface SearchBoxProps {
   onSearch: (from: string, to: string) => void;
@@ -15,15 +16,30 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
   const toRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (window.google) {
-      const options = { componentRestrictions: { country: "nl" }, fields: ["name"] };
-      new google.maps.places.Autocomplete(fromRef.current!, options).addListener("place_changed", () => {
-        setFrom(fromRef.current!.value);
-      });
-      new google.maps.places.Autocomplete(toRef.current!, options).addListener("place_changed", () => {
-        setTo(toRef.current!.value);
-      });
-    }
+    const initAutocomplete = async () => {
+      try {
+        // We wachten actief tot de 'places' library is ingeladen door Google
+        await importLibrary("places");
+
+        const options = { componentRestrictions: { country: "nl" }, fields: ["name"] };
+
+        if (fromRef.current) {
+          new google.maps.places.Autocomplete(fromRef.current, options).addListener("place_changed", () => {
+            setFrom(fromRef.current!.value);
+          });
+        }
+
+        if (toRef.current) {
+          new google.maps.places.Autocomplete(toRef.current, options).addListener("place_changed", () => {
+            setTo(toRef.current!.value);
+          });
+        }
+      } catch (err) {
+        console.error("Kon autocomplete niet laden", err);
+      }
+    };
+
+    initAutocomplete();
   }, []);
 
   return (
@@ -34,7 +50,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
           ref={fromRef}
           type="text"
           placeholder="Vertrekpunt (Station)"
-          className="w-full bg-slate-800/50 border border-slate-700 p-2 pl-10 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all"
+          className="w-full bg-slate-800/50 border border-slate-700 p-2 pl-10 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all text-white"
         />
       </div>
       <div className="relative">
@@ -43,7 +59,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
           ref={toRef}
           type="text"
           placeholder="Bestemming (Station)"
-          className="w-full bg-slate-800/50 border border-slate-700 p-2 pl-10 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all"
+          className="w-full bg-slate-800/50 border border-slate-700 p-2 pl-10 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none transition-all text-white"
         />
       </div>
       <button
