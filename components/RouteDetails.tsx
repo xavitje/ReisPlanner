@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Trip } from '@/types/transit';
-import { ChevronLeft, Clock, Train, Bus, MapPin, ArrowRight, Navigation, Info } from 'lucide-react';
+import { ChevronLeft, Clock, Train, Bus, ArrowRight, Navigation, Info } from 'lucide-react';
 
 interface RouteDetailsProps {
   trip: Trip;
@@ -37,7 +37,7 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
       exit={{ x: -20, opacity: 0 }}
       className="space-y-6"
     >
-      {/* Header - Nu met witte achtergrond en donkere tekst voor ultieme leesbaarheid */}
+      {/* Header */}
       <div className="bg-white border border-gray-200 p-6 rounded-3xl shadow-lg">
         <button
           onClick={onClose}
@@ -84,17 +84,21 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
 
               {/* Content */}
               <div className="flex-1 bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+
                 {/* Origin */}
-                <div className="mb-4 pb-4 border-b border-gray-100">
+                <div className="mb-5 pb-5 border-b border-gray-100">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide font-semibold">
+                      <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">
                         Vertrek
                       </div>
-                      <div className="font-bold text-gray-900 text-lg truncate flex items-center gap-2 flex-wrap">
-                        {leg.origin}
+                      {/* Flex-col zorgt ervoor dat Spoor altijd netjes op een nieuwe regel staat */}
+                      <div className="flex flex-col items-start gap-2">
+                        <div className="font-bold text-gray-900 text-lg">
+                          {leg.origin}
+                        </div>
                         {leg.departureTrack && (
-                          <span className="text-xs bg-blue-50 text-blue-800 px-2 py-1 rounded-md font-bold whitespace-nowrap">
+                          <span className="text-xs bg-blue-50 text-blue-800 px-2.5 py-1 rounded-md font-bold border border-blue-100">
                             Spoor {leg.departureTrack}
                           </span>
                         )}
@@ -111,57 +115,68 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
                   </div>
                 </div>
 
-                {/* Direction/Route info met trein details */}
-                <div className="mb-4 space-y-2">
+                {/* Direction & Train info */}
+                <div className="mb-5 space-y-3">
                   {(leg.direction || leg.destination) && (
-                    <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-xl">
+                    <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl">
                       <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center"
+                        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                         style={{ background: getColor(leg.mode) }}
                       >
                         <ArrowRight className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <div className="text-sm">
-                        <span className="font-bold text-gray-900">
+                      {/* Richting staat nu op een eigen regel of heeft duidelijke tussenruimte */}
+                      <div className="text-sm flex flex-col gap-1">
+                        <span className="font-bold text-gray-900 text-base">
                           {leg.category || (leg.mode === 'TRAIN' ? 'Trein' : leg.mode)}
                         </span>
-                        <span className="text-gray-500"> richting </span>
-                        <span className="font-bold text-gray-900">
-                          {leg.direction || leg.destination}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-gray-500">richting</span>
+                          <span className="font-bold text-gray-900">
+                            {leg.direction || leg.destination}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Trein details (Model, Lengte) */}
+                  {/* Trein details (Model, Lengte) - Nu overzichtelijk gegroepeerd met labels */}
                   {leg.trainInfo && (leg.trainInfo.model || leg.trainInfo.length) && (
-                    <div className="flex flex-wrap items-center gap-2 pt-1 pl-1">
-                      <Info className="w-4 h-4 text-gray-400" />
-                      {leg.trainInfo.model && (
-                        <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                          {leg.trainInfo.model}
-                        </span>
-                      )}
-                      {leg.trainInfo.length && (
-                        <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                          Treinnr: {leg.trainInfo.length}
-                        </span>
-                      )}
+                    <div className="flex flex-col gap-2 pt-2 pl-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Info className="w-4 h-4 text-gray-400" />
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Trein informatie</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2 pl-6">
+                        {leg.trainInfo.model && (
+                          <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1.5 rounded-md border border-gray-200">
+                            {leg.trainInfo.model}
+                          </span>
+                        )}
+                        {leg.trainInfo.length && (
+                          <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1.5 rounded-md border border-gray-200">
+                            Treinnr: {leg.trainInfo.length}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
 
                 {/* Destination */}
-                <div className="pt-4 border-t border-gray-100">
+                <div className="pt-5 border-t border-gray-100">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs text-gray-500 mb-1 uppercase tracking-wide font-semibold">
+                      <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide font-semibold">
                         Aankomst
                       </div>
-                      <div className="font-bold text-gray-900 text-lg truncate flex items-center gap-2 flex-wrap">
-                        {leg.destination}
+                      {/* Zelfde logica als bij vertrek voor het aankomstspoor */}
+                      <div className="flex flex-col items-start gap-2">
+                        <div className="font-bold text-gray-900 text-lg">
+                          {leg.destination}
+                        </div>
                         {leg.arrivalTrack && (
-                          <span className="text-xs bg-green-50 text-green-800 px-2 py-1 rounded-md font-bold whitespace-nowrap">
+                          <span className="text-xs bg-green-50 text-green-800 px-2.5 py-1 rounded-md font-bold border border-green-100">
                             Spoor {leg.arrivalTrack}
                           </span>
                         )}
