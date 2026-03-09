@@ -22,25 +22,32 @@ export async function GET(request: Request) {
       }
     );
 
+    if (!response.ok) {
+      throw new Error(`NS API reageerde met status: ${response.status}`);
+    }
+
     const data = await response.json();
 
-    // We mappen de data naar een 'clean' formaat voor onze frontend
     const trips = data.trips.map((trip: any) => ({
       uid: trip.ctxReis,
-      departureTime: trip.legs[0].origin.plannedDateTime,
-      arrivalTime: trip.legs[trip.legs.length - 1].destination.plannedDateTime,
+      departureTime: trip.legs[0]?.origin?.plannedDateTime || '',
+      arrivalTime: trip.legs[trip.legs.length - 1]?.destination?.plannedDateTime || '',
       duration: trip.actualDurationInMinutes,
       transfers: trip.transfers,
       legs: trip.legs.map((leg: any) => ({
-        mode: leg.type, // TRAIN, BUS, etc.
-        origin: leg.origin.name,
-        destination: leg.destination.name,
-        polyline: leg.polyline // Sommige legs hebben direct een polyline
+        mode: leg.type,
+        origin: leg.origin?.name || '',
+        destination: leg.destination?.name || '',
+        departureTime: leg.origin?.plannedDateTime || '',
+        arrivalTime: leg.destination?.plannedDateTime || '',
+        direction: leg.direction || '',
+        polyline: leg.polyline || undefined
       }))
     }));
 
     return NextResponse.json(trips);
   } catch (error) {
+    console.error("NS API Error:", error);
     return NextResponse.json({ error: 'Failed to fetch from NS' }, { status: 500 });
   }
 }

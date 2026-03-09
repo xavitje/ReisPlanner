@@ -8,11 +8,12 @@ export interface Station {
 export interface Leg {
   origin: string;
   destination: string;
-  departureTime: string;
-  arrivalTime: string;
+  departureTime?: string;
+  arrivalTime?: string;
   mode: string;
-  direction: string;
-  stops: any[];
+  direction?: string;
+  stops?: any[];
+  polyline?: string;
 }
 
 export interface Trip {
