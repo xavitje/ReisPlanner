@@ -33,17 +33,20 @@ export default function Map({ center = { lat: 52.3676, lng: 4.9041 }, zoom = 12,
   }), [center, zoom]);
 
   useEffect(() => {
-    const loader = new Loader({
-      apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-      version: "weekly",
-      libraries: ["places"]
-    });
+    const initMap = async () => {
+      const loader = new Loader({
+        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+        version: "weekly",
+      });
 
-    loader.load().then(() => {
+      const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
+
       if (mapRef.current && !googleMap.current) {
-        googleMap.current = new google.maps.Map(mapRef.current, mapOptions);
+        googleMap.current = new Map(mapRef.current, mapOptions);
       }
-    });
+    };
+
+    initMap();
   }, [mapOptions]);
 
   // Teken de route als de polyline verandert
