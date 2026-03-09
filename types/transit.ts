@@ -34,3 +34,19 @@ export interface Trip {
   transfers: number;
   legs: Leg[];
 }
+
+export interface JourneyStop {
+  name: string;
+  time: string;
+  track?: string;
+  status: 'ORIGIN' | 'STOP' | 'DESTINATION' | 'PASSING';
+}
+
+export interface JourneyDetails {
+  trainNumber: string;
+  category: string;
+  direction: string;
+  operator: string;
+  facilities: string[];
+  stops: JourneyStop[];
+}
