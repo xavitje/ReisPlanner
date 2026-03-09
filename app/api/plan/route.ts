@@ -67,14 +67,21 @@ export async function GET(request: Request) {
         departureTime: leg.origin?.plannedDateTime || undefined,
         arrivalTime: leg.destination?.plannedDateTime || undefined,
         direction: leg.direction || '',
-        polyline: leg.polyline || undefined
+        polyline: leg.polyline || undefined,
+
+        category: leg.product?.displayName || leg.product?.shortCategoryName || leg.name || '',
+        departureTrack: leg.origin?.actualTrack || leg.origin?.plannedTrack || '',
+        arrivalTrack: leg.destination?.actualTrack || leg.destination?.plannedTrack || '',
+        trainInfo: {
+          model: leg.product?.displayName || 'Trein',
+          length: leg.product?.number ? parseInt(leg.product.number) : undefined,
+        }
       }))
     }));
 
     return NextResponse.json(trips);
 
   } catch (error: unknown) {
-    // 4. Type-safe error afhandeling (voorkomt Vercel build errors)
     console.error("Interne Server Error (Fetch):", error);
     const msg = error instanceof Error ? error.message : "Onbekende fout bij verbinden met NS API";
     return NextResponse.json({ error: `Fout bij berekenen: ${msg}` }, { status: 500 });
