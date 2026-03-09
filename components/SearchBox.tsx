@@ -71,9 +71,9 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
 
       <div className="relative z-10 space-y-3">
         {/* From Input */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[var(--azure-mid-700)] flex items-center justify-center shadow-md z-10">
-            <Navigation className="w-4 h-4 text-white" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[var(--azure-mid-700)] flex items-center justify-center shadow-md flex-shrink-0">
+            <Navigation className="w-5 h-5 text-white" />
           </div>
           <input
             value={from}
@@ -81,7 +81,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
             onFocus={() => { setActiveField('from'); setPredictions([]); }}
             type="text"
             placeholder="Vertrekstation..."
-            className="w-full bg-white border-2 border-[var(--iceland-mid-300)] text-[var(--iceland-dark-1000)] placeholder-[var(--iceland-dark-1000)]/40 p-4 pl-16 pr-4 rounded-2xl focus:ring-2 focus:ring-[var(--azure-mid-700)] focus:border-[var(--azure-mid-700)] outline-none transition-all shadow-sm font-medium"
+            className="flex-1 bg-white border-2 border-[var(--iceland-mid-300)] text-[var(--iceland-dark-1000)] placeholder-[var(--iceland-dark-1000)]/40 p-4 px-5 rounded-2xl focus:ring-2 focus:ring-[var(--azure-mid-700)] focus:border-[var(--azure-mid-700)] outline-none transition-all shadow-sm font-medium"
           />
         </div>
 
@@ -96,9 +96,9 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
         </div>
 
         {/* To Input */}
-        <div className="relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[var(--amazon-mid-700)] flex items-center justify-center shadow-md z-10">
-            <MapPin className="w-4 h-4 text-white" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[var(--amazon-mid-700)] flex items-center justify-center shadow-md flex-shrink-0">
+            <MapPin className="w-5 h-5 text-white" />
           </div>
           <input
             value={to}
@@ -106,22 +106,22 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
             onFocus={() => { setActiveField('to'); setPredictions([]); }}
             type="text"
             placeholder="Bestemmingsstation..."
-            className="w-full bg-white border-2 border-[var(--iceland-mid-300)] text-[var(--iceland-dark-1000)] placeholder-[var(--iceland-dark-1000)]/40 p-4 pl-16 pr-4 rounded-2xl focus:ring-2 focus:ring-[var(--amazon-mid-700)] focus:border-[var(--amazon-mid-700)] outline-none transition-all shadow-sm font-medium"
+            className="flex-1 bg-white border-2 border-[var(--iceland-mid-300)] text-[var(--iceland-dark-1000)] placeholder-[var(--iceland-dark-1000)]/40 p-4 px-5 rounded-2xl focus:ring-2 focus:ring-[var(--amazon-mid-700)] focus:border-[var(--amazon-mid-700)] outline-none transition-all shadow-sm font-medium"
           />
         </div>
       </div>
 
       {/* Autocomplete Dropdown */}
       {predictions.length > 0 && (
-        <div className="absolute left-0 right-0 mt-2 bg-white border-2 border-[var(--iceland-mid-300)] rounded-2xl shadow-2xl z-50 overflow-hidden max-h-[300px] overflow-y-auto custom-scrollbar">
+        <div className="absolute left-0 right-0 mt-2 bg-white border-2 border-[var(--azure-mid-700)] rounded-2xl shadow-2xl z-50 overflow-hidden max-h-[300px] overflow-y-auto custom-scrollbar">
           {predictions.map((p) => (
             <div
               key={p.place_id}
               onClick={() => handleSelectPrediction(p)}
-              className="p-4 hover:bg-[var(--iceland-mid-200)] cursor-pointer flex items-start gap-3 border-b border-[var(--iceland-mid-200)] last:border-0 transition-colors"
+              className="p-4 hover:bg-[var(--azure-light-100)] cursor-pointer flex items-start gap-3 border-b border-[var(--iceland-mid-200)] last:border-0 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-[var(--azure-light-100)] flex items-center justify-center flex-shrink-0 mt-1">
-                <MapPin className="w-4 h-4 text-[var(--azure-mid-700)]" />
+              <div className="w-8 h-8 rounded-full bg-[var(--azure-mid-700)] flex items-center justify-center flex-shrink-0 mt-1">
+                <MapPin className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-[var(--iceland-dark-1000)] font-semibold truncate">

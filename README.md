@@ -18,34 +18,6 @@ Deze app is volledig gerestyled volgens de **Travel Counsellors Brand Guidelines
 - 🎭 Smooth animaties met Framer Motion
 - 🌈 Gradient accenten
 
-## 📦 Installatie
-
-### 1. Vervang de bestanden
-
-Kopieer alle gegenereerde bestanden naar je project:
-
-```bash
-# Kopieer de CSS
-cp globals.css app/globals.css
-
-# Kopieer de componenten
-cp page.tsx app/page.tsx
-cp SearchBox.tsx components/SearchBox.tsx
-cp RouteDetails.tsx components/RouteDetails.tsx
-cp Map.tsx components/Map.tsx
-```
-
-### 2. Google Fonts
-
-De nieuwe design gebruikt **Plus Jakarta Sans**. Deze wordt automatisch geladen via de globals.css.
-
-### 3. Rebuild & Run
-
-```bash
-npm install
-npm run dev
-```
-
 ## 📱 Responsive Design
 
 ### Desktop (lg+)

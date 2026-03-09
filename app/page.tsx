@@ -159,12 +159,14 @@ export default function Home() {
         </div>
 
         {/* Right Panel - Map */}
-        <div className="flex-1 relative">
-          <Map encodedPolyline={activePolyline} />
+        <div className="flex-1 relative p-6">
+          <div className="h-full w-full">
+            <Map encodedPolyline={activePolyline} />
+          </div>
 
           {/* Map overlay info */}
           {!activePolyline && (
-            <div className="absolute top-8 left-8 right-8 bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-[var(--iceland-mid-300)]">
+            <div className="absolute top-14 left-14 right-14 bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-[var(--iceland-mid-300)]">
               <h2 className="text-2xl font-bold text-[var(--cherry-dark-1000)] mb-2">
                 Welkom bij de Reisplanner
               </h2>
