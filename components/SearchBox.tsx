@@ -39,7 +39,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
       autocompleteService.current.getPlacePredictions({
         input: val,
         componentRestrictions: { country: 'nl' },
-        types: ['transit_station', 'establishment'] // Focus op OV
+        types: ['transit_station']
       }, (results) => {
         setPredictions(results || []);
       });
@@ -48,9 +48,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
     }
   };
 
-  // Zodra iemand een suggestie aanklikt
   const handleSelectPrediction = (prediction: google.maps.places.AutocompletePrediction) => {
-    // We pakken ALLEEN de korte naam (bijv "Rotterdam Centraal") zodat de NS API niet crasht!
     const shortName = prediction.structured_formatting.main_text;
 
     if (activeField === 'from') setFrom(shortName);
