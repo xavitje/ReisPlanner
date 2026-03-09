@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Search, MapPin, ArrowRightLeft, Loader2, Navigation, Calendar, Clock } from 'lucide-react';
-import { Loader } from '@googlemaps/js-api-loader';
+import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
 
 interface SearchBoxProps {
   onSearch: (from: string, to: string, date: string, time: string) => void;
@@ -23,16 +23,16 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
   useEffect(() => {
     const initAutocomplete = async () => {
       try {
-        const loader = new Loader({
-          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-          version: "weekly",
-          libraries: ["places"]
+        // FIX: Gebruik 'key' in plaats van 'apiKey' in de options
+        setOptions({
+          key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+          v: "weekly"
         });
 
-        // FIX: Door '(loader as any)' te gebruiken dwingen we TypeScript om de foutmelding te negeren.
-        // We gebruiken .load() omdat dit de runtime fout ("importLibrary is not installed") in de browser voorkomt.
-        await (loader as any).load();
+        // Laad de 'places' bibliotheek in
+        await importLibrary("places");
 
+        // Initialiseer de AutocompleteService
         autocompleteService.current = new google.maps.places.AutocompleteService();
       } catch (err) {
         console.error("Kon Google Places niet laden", err);
