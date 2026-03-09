@@ -70,14 +70,11 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
 
       {/* Timeline */}
       <div className="relative space-y-5 pb-6">
-        {/* Connecting line */}
         <div className="absolute left-[1.4rem] top-8 bottom-8 w-[3px] bg-gray-200 rounded-full z-0" />
 
         {trip.legs.map((leg, index) => (
           <div key={index} className="relative z-10">
-            {/* Step */}
             <div className="flex gap-4">
-              {/* Icon */}
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center shadow-md flex-shrink-0 border-4 border-white"
                 style={{ background: getColor(leg.mode) }}
@@ -85,7 +82,6 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
                 {getIcon(leg.mode)}
               </div>
 
-              {/* Content */}
               <div className="flex-1 bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
 
                 {/* Origin */}
@@ -141,12 +137,12 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
                     </div>
                   )}
 
-                  {/* Trein details - Nu interactief & Klikbaar (Stap 2) */}
+                  {/* FIX: Nu sturen we leg.departureTime (exacte tijd) mee in plaats van alleen de datum */}
                   {leg.trainInfo && (leg.trainInfo.model || leg.trainInfo.length) && (
                     <div
                       onClick={() => {
-                        const dateString = leg.departureTime ? leg.departureTime.split('T')[0] : trip.departureTime.split('T')[0];
-                        router.push(`/trein/${leg.trainInfo?.length}?date=${dateString}`);
+                        const dateTimeString = leg.departureTime || trip.departureTime;
+                        router.push(`/trein/${leg.trainInfo?.length}?dateTime=${encodeURIComponent(dateTimeString)}`);
                       }}
                       className="group flex items-center justify-between mt-3 p-3 bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-all cursor-pointer shadow-sm hover:shadow"
                     >
@@ -206,7 +202,6 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
               </div>
             </div>
 
-            {/* Transfer indicator */}
             {index < trip.legs.length - 1 && (
               <div className="flex items-center gap-3 ml-14 mt-3 mb-1">
                 <div className="flex-1 h-[2px] bg-gray-200 rounded-full"></div>
@@ -220,7 +215,6 @@ export default function RouteDetails({ trip, onClose }: RouteDetailsProps) {
         ))}
       </div>
 
-      {/* Summary Card */}
       <div className="bg-gray-50 border border-gray-200 p-6 rounded-3xl shadow-sm">
         <div className="flex items-center justify-between">
           <div>

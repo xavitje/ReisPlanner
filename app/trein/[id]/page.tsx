@@ -11,7 +11,8 @@ export default function TreinDetailsPage() {
   const router = useRouter();
 
   const id = params.id as string;
-  const date = searchParams.get('date') || '';
+  // FIX: Haal dateTime op uit de url
+  const dateTime = searchParams.get('dateTime') || '';
 
   const [journey, setJourney] = useState<JourneyDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,8 +21,9 @@ export default function TreinDetailsPage() {
   useEffect(() => {
     const fetchJourney = async () => {
       try {
-        const res = await fetch(`/api/trein?id=${id}&date=${date}`);
-        if (!res.ok) throw new Error('Kon rit niet ophalen. Misschien rijdt deze vandaag niet meer.');
+        // FIX: Stuur dateTime mee naar de backend
+        const res = await fetch(`/api/trein?id=${id}&dateTime=${encodeURIComponent(dateTime)}`);
+        if (!res.ok) throw new Error('Kon rit niet ophalen. Misschien is deze uitgevallen of te lang geleden.');
         const data = await res.json();
         setJourney(data);
       } catch (err: any) {
@@ -32,16 +34,14 @@ export default function TreinDetailsPage() {
     };
 
     if (id) fetchJourney();
-  }, [id, date]);
+  }, [id, dateTime]);
 
-  // Helper functie om te kijken of een faciliteit aanwezig is
   const hasFacility = (code: string) => journey?.facilities.includes(code);
 
   return (
     <main className="min-h-screen bg-gray-50 flex justify-center pb-20">
       <div className="w-full max-w-3xl bg-white min-h-screen shadow-2xl relative">
 
-        {/* Header Section */}
         <div className="bg-gradient-to-br from-blue-700 to-blue-500 p-6 pt-8 text-white rounded-b-[40px] shadow-lg sticky top-0 z-50">
           <button
             onClick={() => router.back()}
@@ -86,7 +86,6 @@ export default function TreinDetailsPage() {
           {!loading && !error && journey && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-              {/* Voorzieningen (Alleen tonen als ze er zijn) */}
               {journey.facilities.length > 0 && (
                 <div className="bg-gray-50 border border-gray-200 p-5 rounded-2xl">
                   <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Aan boord</h3>
@@ -110,7 +109,6 @@ export default function TreinDetailsPage() {
                 </div>
               )}
 
-              {/* Complete Route Timeline */}
               <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-blue-600" />
@@ -118,7 +116,6 @@ export default function TreinDetailsPage() {
                 </h3>
 
                 <div className="relative space-y-0">
-                  {/* Verticale Lijn over de hele lengte */}
                   <div className="absolute left-[1.15rem] top-4 bottom-8 w-[3px] bg-blue-200 z-0"></div>
 
                   {journey.stops.map((stop, index) => {
@@ -127,7 +124,6 @@ export default function TreinDetailsPage() {
 
                     return (
                       <div key={index} className="relative z-10 flex gap-4 min-h-[5rem]">
-                        {/* Cirkel op de tijdlijn */}
                         <div className="relative flex flex-col items-center pt-1">
                           <div className={`w-[2.4rem] h-[2.4rem] rounded-full flex items-center justify-center border-4 border-white shadow-sm ${
                             isFirst ? 'bg-blue-600' : isLast ? 'bg-green-600' : 'bg-white border-2 !border-blue-400'
@@ -142,7 +138,6 @@ export default function TreinDetailsPage() {
                           </div>
                         </div>
 
-                        {/* Stop Details */}
                         <div className={`flex-1 pb-6 ${!isLast ? 'border-b border-gray-100 mb-6' : ''}`}>
                           <div className="flex justify-between items-start">
                             <div>
