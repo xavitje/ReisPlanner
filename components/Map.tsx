@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useMemo } from 'react';
-// Dit is de nieuwe Versie 2.0 import!
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 
 interface MapProps {
@@ -21,29 +20,88 @@ export default function Map({ center = { lat: 52.3676, lng: 4.9041 }, zoom = 12,
     disableDefaultUI: true,
     clickableIcons: false,
     styles: [
-      { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
-      { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] },
-      { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] },
-      { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
-      { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
-      { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] },
-      { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] },
-      { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#2f3948" }] },
-      { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
+      {
+        "featureType": "all",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#F9F6F0" }]
+      },
+      {
+        "featureType": "all",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#1D1C1A" }]
+      },
+      {
+        "featureType": "all",
+        "elementType": "labels.text.stroke",
+        "stylers": [{ "color": "#FBFAF6" }, { "weight": 3 }]
+      },
+      {
+        "featureType": "administrative",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#530E2F" }]
+      },
+      {
+        "featureType": "landscape",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#F9F6F0" }]
+      },
+      {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#F2ECE1" }]
+      },
+      {
+        "featureType": "poi.park",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#C8F2E0" }]
+      },
+      {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#FBFAF6" }]
+      },
+      {
+        "featureType": "road",
+        "elementType": "geometry.stroke",
+        "stylers": [{ "color": "#F2ECE1" }]
+      },
+      {
+        "featureType": "road.highway",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#FFD7D4" }]
+      },
+      {
+        "featureType": "road.highway",
+        "elementType": "geometry.stroke",
+        "stylers": [{ "color": "#86233A" }]
+      },
+      {
+        "featureType": "transit",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#B0E2F5" }]
+      },
+      {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [{ "color": "#80F4FC" }]
+      },
+      {
+        "featureType": "water",
+        "elementType": "labels.text.fill",
+        "stylers": [{ "color": "#121F3F" }]
+      }
     ]
   }), [center, zoom]);
 
   useEffect(() => {
     const initMap = async () => {
       try {
-        // 1. We stellen eerst de opties in
         setOptions({
           key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
           v: "weekly",
           libraries: ["places"]
         });
 
-        // 2. Dan importeren we de maps library veilig via V2.0 syntax
         const { Map } = await importLibrary("maps") as google.maps.MapsLibrary;
 
         if (mapRef.current && !googleMap.current) {
@@ -57,7 +115,6 @@ export default function Map({ center = { lat: 52.3676, lng: 4.9041 }, zoom = 12,
     initMap();
   }, [mapOptions]);
 
-  // Teken de route als de polyline verandert
   useEffect(() => {
     if (encodedPolyline && googleMap.current) {
       if (routePath.current) routePath.current.setMap(null);
@@ -66,9 +123,9 @@ export default function Map({ center = { lat: 52.3676, lng: 4.9041 }, zoom = 12,
       routePath.current = new google.maps.Polyline({
         path: path,
         geodesic: true,
-        strokeColor: "#38BDF8",
-        strokeOpacity: 0.8,
-        strokeWeight: 5,
+        strokeColor: "#86233A",
+        strokeOpacity: 0.9,
+        strokeWeight: 6,
       });
 
       routePath.current.setMap(googleMap.current);
@@ -79,5 +136,5 @@ export default function Map({ center = { lat: 52.3676, lng: 4.9041 }, zoom = 12,
     }
   }, [encodedPolyline]);
 
-  return <div ref={mapRef} className="w-full h-full rounded-3xl" />;
+  return <div ref={mapRef} className="w-full h-full rounded-3xl overflow-hidden shadow-2xl" />;
 }
