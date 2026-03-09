@@ -29,7 +29,10 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
           libraries: ["places"]
         });
 
-        await loader.load();
+        // FIX: Door '(loader as any)' te gebruiken dwingen we TypeScript om de foutmelding te negeren.
+        // We gebruiken .load() omdat dit de runtime fout ("importLibrary is not installed") in de browser voorkomt.
+        await (loader as any).load();
+
         autocompleteService.current = new google.maps.places.AutocompleteService();
       } catch (err) {
         console.error("Kon Google Places niet laden", err);
