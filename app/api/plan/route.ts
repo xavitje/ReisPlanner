@@ -11,6 +11,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rawFrom = searchParams.get('from');
   const rawTo = searchParams.get('to');
+  const rawDate = searchParams.get('date');
+  const rawTime = searchParams.get('time');
 
   const NS_API_KEY = process.env.NS_API_KEY;
 
@@ -26,17 +28,23 @@ export async function GET(request: Request) {
   const to = cleanStationName(rawTo);
 
   try {
-    const response = await fetch(
-      `${NS_API_URL}?fromStation=${encodeURIComponent(from)}&toStation=${encodeURIComponent(to)}&minimalChangeTime=5`,
-      {
-        cache: 'no-store',
-        headers: {
-          'Ocp-Apim-Subscription-Key': NS_API_KEY,
-          'User-Agent': 'OVReisPlanner/1.0 (Next.js op Vercel)',
-          'Accept': 'application/json'
-        },
-      }
-    );
+    // Basis URL
+    let nsApiUrl = `${NS_API_URL}?fromStation=${encodeURIComponent(from)}&toStation=${encodeURIComponent(to)}&minimalChangeTime=5`;
+
+    // Voeg datum en tijd toe als ze zijn meegegeven
+    if (rawDate && rawTime) {
+      const dateTime = `${rawDate}T${rawTime}:00`;
+      nsApiUrl += `&dateTime=${encodeURIComponent(dateTime)}`;
+    }
+
+    const response = await fetch(nsApiUrl, {
+      cache: 'no-store',
+      headers: {
+        'Ocp-Apim-Subscription-Key': NS_API_KEY,
+        'User-Agent': 'OVReisPlanner/1.0 (Next.js op Vercel)',
+        'Accept': 'application/json'
+      },
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);

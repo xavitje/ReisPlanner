@@ -1,23 +1,25 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
 import Map from '@/components/Map';
 import SearchBox from '@/components/SearchBox';
 import RouteDetails from '@/components/RouteDetails';
 import { Trip } from '@/types/transit';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, MapPin, Train } from 'lucide-react';
+import { Clock, MapPin, Train, User } from 'lucide-react';
 
 export default function Home() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
 
-  const handleSearch = async (from: string, to: string) => {
+  // handleSearch aangepast zodat date en time worden doorgestuurd
+  const handleSearch = async (from: string, to: string, date: string, time: string) => {
     setLoading(true);
     setSelectedTrip(null);
     try {
-      const res = await fetch(`/api/plan?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+      const res = await fetch(`/api/plan?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}`);
       const data = await res.json();
       setTrips(data || []);
     } catch (err) {
@@ -32,16 +34,25 @@ export default function Home() {
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-[var(--iceland-light-100)]">
 
+      {/* Zwevende Profiel Knop (Desktop - rechtsboven over de kaart heen) */}
+      <div className="hidden lg:block absolute top-6 right-6 z-50">
+        <Link
+          href="/profile"
+          className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-200 hover:scale-105 hover:shadow-xl transition-all text-gray-700 hover:text-blue-600"
+        >
+          <User className="w-6 h-6" />
+        </Link>
+      </div>
+
       {/* Decorative background elements */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--cherry-light-100)] rounded-full blur-[150px] opacity-30 -z-10" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[var(--azure-light-100)] rounded-full blur-[150px] opacity-20 -z-10" />
 
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-screen">
-        {/* Left Panel - Search & Results - Max 2/3 width */}
+        {/* Left Panel */}
         <div className="w-[66%] h-full flex flex-col bg-white border-r border-[var(--iceland-mid-300)] shadow-2xl">
-
-          {/* Desktop Header - Gegarandeerd goed leesbaar (Wit + Donkere tekst) */}
+          {/* Desktop Header */}
           <div className="flex justify-center p-8 pb-6 bg-white border-b border-gray-200 shadow-sm z-10">
             <div className="w-[80%] max-w-2xl">
               <div className="flex items-center gap-3 mb-6">
@@ -92,7 +103,6 @@ export default function Home() {
                             onClick={() => setSelectedTrip(trip)}
                             className="route-card bg-white p-6 cursor-pointer border border-[var(--iceland-mid-300)] hover:shadow-xl rounded-2xl"
                           >
-                            {/* Categorie & Spoor Info */}
                             <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
                               <span className="px-3 py-1 bg-blue-50 text-blue-800 rounded-full text-xs font-bold uppercase tracking-wider">
                                 {mainLeg?.category || (mainLeg?.mode === 'TRAIN' ? 'Trein' : mainLeg?.mode) || 'Reis'}
@@ -104,7 +114,6 @@ export default function Home() {
                               )}
                             </div>
 
-                            {/* Time Display */}
                             <div className="flex items-center justify-between mb-5">
                               <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-bold text-gray-900">
@@ -130,7 +139,6 @@ export default function Home() {
                               </div>
                             </div>
 
-                            {/* Trip Info */}
                             <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl">
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
@@ -141,9 +149,7 @@ export default function Home() {
                                   <div className="font-bold text-gray-800">{trip.duration} min</div>
                                 </div>
                               </div>
-
                               <div className="h-10 w-[1px] bg-gray-200"></div>
-
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-sm">
                                   <span className="text-white font-bold text-sm">{trip.transfers}</span>
@@ -199,9 +205,18 @@ export default function Home() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="lg:hidden min-h-screen flex flex-col">
-        {/* Mobile Header - Aangepast naar wit voor leesbaarheid */}
-        <div className="bg-white border-b border-gray-200 shadow-md flex justify-center w-full z-10">
+      <div className="lg:hidden min-h-screen flex flex-col relative">
+        {/* Mobile Header */}
+        <div className="bg-white border-b border-gray-200 shadow-md flex justify-center w-full z-10 relative">
+
+          {/* Profiel knop in mobiele weergave absoluut in de header geplaatst */}
+          <Link
+            href="/profile"
+            className="absolute top-6 right-5 w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center shadow-sm border border-gray-200 text-gray-700 hover:text-blue-600"
+          >
+            <User className="w-5 h-5" />
+          </Link>
+
           <div className="w-[90%] p-6 pb-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center shadow-lg">
