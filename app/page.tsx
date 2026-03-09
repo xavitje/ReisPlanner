@@ -28,18 +28,17 @@ export default function Home() {
   };
 
   return (
-    // FIX: px-5 sm:px-8 zorgt voor geforceerde witruimte aan de zijkanten. py-8 voor de boven/onderkant.
-    <main className="min-h-screen bg-[#121F3F] flex justify-center font-sans pb-20 px-5 sm:px-8 py-8">
+    <main className="min-h-screen bg-[#121f3f] flex justify-center font-sans pb-20 px-5 sm:px-8 py-8">
       <div className="w-full max-w-xl flex flex-col relative">
 
-        {/* Header & Profiel */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-extrabold text-[#B0E2F5] tracking-tight">
+          <h1 className="text-3xl font-black text-[#80f4fc] tracking-tight">
             Reisplanner
           </h1>
           <Link
             href="/profile"
-            className="w-12 h-12 bg-[#264F6B] rounded-full flex items-center justify-center shadow-md border border-[#264F6B] hover:border-[#80F4FC] transition-colors text-[#B0E2F5]"
+            className="w-12 h-12 bg-[#264f6b] rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform text-[#80f4fc]"
           >
             <User className="w-6 h-6" />
           </Link>
@@ -50,7 +49,7 @@ export default function Home() {
           <SearchBox onSearch={handleSearch} isLoading={loading} />
         </div>
 
-        {/* Content Gebied (Lijst of Details) */}
+        {/* Content */}
         <AnimatePresence mode="wait">
           {selectedTrip ? (
             <RouteDetails
@@ -76,45 +75,42 @@ export default function Home() {
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => setSelectedTrip(trip)}
-                    className="bg-[#80F4FC] p-5 cursor-pointer rounded-3xl shadow-lg hover:scale-[1.02] transition-transform"
+                    className="bg-[#80f4fc] p-5 cursor-pointer rounded-[2rem] shadow-lg hover:scale-[1.02] transition-transform"
                   >
-                    {/* Top Info */}
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#121F3F]/10">
-                      <span className="px-3 py-1 bg-[#121F3F] text-[#80F4FC] rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#1c0101]/20">
+                      <span className="px-3 py-1 bg-[#1c0101] text-[#80f4fc] rounded-lg text-xs font-bold uppercase tracking-wider">
                         {mainLeg?.category || (mainLeg?.mode === 'TRAIN' ? 'Trein' : mainLeg?.mode) || 'Reis'}
                       </span>
                       {mainLeg?.departureTrack && (
-                        <div className="text-sm font-extrabold text-[#121F3F]">
+                        <div className="text-sm font-black text-[#1c0101]">
                           Spoor {mainLeg.departureTrack}
                         </div>
                       )}
                     </div>
 
-                    {/* Tijd Info */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-black text-[#121F3F]">
+                        <span className="text-3xl font-black text-[#1c0101]">
                           {new Date(trip.departureTime).toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}
                         </span>
                       </div>
 
                       <div className="flex-1 mx-4">
-                        <div className="h-[3px] bg-[#121F3F]/20 rounded-full relative">
-                           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#121F3F]"></div>
+                        <div className="h-[3px] bg-[#1c0101]/30 rounded-full relative">
+                           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#1c0101]"></div>
                         </div>
                       </div>
 
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-black text-[#121F3F]">
+                        <span className="text-3xl font-black text-[#1c0101]">
                           {new Date(trip.arrivalTime).toLocaleTimeString('nl-NL', {hour: '2-digit', minute:'2-digit'})}
                         </span>
                       </div>
                     </div>
 
-                    {/* Bottom Info */}
-                    <div className="flex items-center justify-between bg-[#121F3F]/5 p-3 rounded-2xl text-[#121F3F]">
+                    <div className="flex items-center justify-between bg-[#121f3f]/10 p-3 rounded-2xl text-[#1c0101]">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-5 h-5 opacity-70" />
+                        <Clock className="w-5 h-5" />
                         <span className="font-bold">{trip.duration} min</span>
                       </div>
                       <div className="flex items-center gap-2 font-bold">
